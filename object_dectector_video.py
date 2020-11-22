@@ -80,7 +80,7 @@ def object_detection_YOLO(img,threshold,nms_threshold):
 #         transformed_points_list.append([transformed_points[i][0][0],transformed_points[i][0][1]])
 #     return transformed_points_list
       
-      cap = cv.VideoCapture("pedestrians.mp4")
+cap = cv.VideoCapture("pedestrians.mp4")
 
 cap.set(cv.CAP_PROP_FRAME_WIDTH,1280)
 cap.set(cv.CAP_PROP_FRAME_HEIGHT,720)
