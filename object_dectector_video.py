@@ -2,7 +2,6 @@
 import cv2 as cv
 import numpy as np
 
-
 def object_detection_YOLO(img,threshold,nms_threshold):
     # determine the output layer
     ln = net.getLayerNames()
@@ -52,7 +51,7 @@ def object_detection_YOLO(img,threshold,nms_threshold):
 
     return boxes,classIDs,confidences,indices
 
-cap = cv.VideoCapture("video_edited.mp4")
+cap = cv.VideoCapture("pedestrians.mp4")
 cap.set(cv.CAP_PROP_FRAME_WIDTH,1280)
 cap.set(cv.CAP_PROP_FRAME_HEIGHT,720)
 cap.set(cv.CAP_PROP_BUFFERSIZE,10)
