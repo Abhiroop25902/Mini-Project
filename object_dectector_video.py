@@ -94,7 +94,7 @@ def object_detection_YOLO(img,threshold,nms_threshold):
 
 
 file_name = "pedestrians.mp4"
-
+print("Finding Total Frames:")
 tot_frame = total_frames(file_name)
 cap = cv.VideoCapture(file_name)
 
