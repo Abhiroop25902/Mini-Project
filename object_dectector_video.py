@@ -123,11 +123,12 @@ while True:
             dist = w*h*5/no_of_pixel_5m
             color = [int(c) for c in colors[classIDs[i]]]   # using randomised color for classes made above
             cv.rectangle(img, (x, y), (x + w, y + h), color, 2)  # making rectangle takes two opposite corners as input
-            text = f"{round(confidences[i],4)*100}%, {round(dist,2)}m"
+            text = "{:.2f}% , {:.2f}m".format(confidences[i],dist)
             cv.putText(img, text, (x, y - 5), cv.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
 
     cv.imshow('Video', img)
     k=cv.waitKey(1)
-    if k==27: break
+    if (k==27) or (k==113): 
+        break
 
 cv.destroyAllWindows()
