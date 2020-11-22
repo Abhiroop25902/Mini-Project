@@ -30,7 +30,7 @@ def object_detection_YOLO(img,threshold,nms_threshold):
             scores = detection[5:]  #everything in array after 5th elements
             classID = np.argmax(scores)     #picks the maximum probability
             confidence = scores[classID]    
-            if confidence > threshold:
+            if (confidence > threshold) & (classID == 0):
                 #first 4 elemensts are box characteristics normalized to range(0,1)
                 #first two element are middle co-ordinate
                 # next two are width and height of blob           
@@ -86,19 +86,18 @@ while True:
     #indices -> (dimension less than n)as the boxes might be overlapping, indices are the box which best fits the object and have best confidence, using NMS [Non-Maximum Suppression]
      
 
-    no_of_pixel_5m = 1000 #arbiitrary
+    no_of_pixel_5m = 50000 #arbiitrary
 
     if len(indices) > 0:    #showing output
         for i in indices.flatten(): 
-            if classIDs[i] == 0:
-                (x, y) = (boxes[i][0], boxes[i][1])     #top-left corner
-                (w, h) = (boxes[i][2], boxes[i][3])     #width and height
-                dist = w*h*5/no_of_pixel_5m
-                color = [int(c) for c in colors[classIDs[i]]]   #using randomised color for classes made above
-                cv.rectangle(img, (x, y), (x + w, y + h), color, 2)     #making rectangle takes two opposite corners as input
-                #text = "{}: {:.4f}".format(classes[classIDs[i]], confidences[i])
-                text = "{} {:.2f} {:.2f}m".format(classes[classIDs[i]],confidences[i],dist)
-                cv.putText(img, text, (x, y - 5), cv.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
+            (x, y) = (boxes[i][0], boxes[i][1])     #top-left corner
+            (w, h) = (boxes[i][2], boxes[i][3])     #width and height
+            dist = w*h*5/no_of_pixel_5m
+            color = [int(c) for c in colors[classIDs[i]]]   #using randomised color for classes made above
+            cv.rectangle(img, (x, y), (x + w, y + h), color, 2)     #making rectangle takes two opposite corners as input
+            #text = "{}: {:.4f}".format(classes[classIDs[i]], confidences[i])
+            text = "{:.2f} {:.2f}m".format(confidences[i],dist)
+            cv.putText(img, text, (x, y - 5), cv.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
 
     cv.imshow('Video', img)
     #cv.imwrite("output.jpg",img)
