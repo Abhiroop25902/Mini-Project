@@ -30,7 +30,7 @@ def object_detection_YOLO(img,threshold,nms_threshold):
             scores = detection[5:]  #everything in array after 5th elements
             classID = np.argmax(scores)     #picks the maximum probability
             confidence = scores[classID]    
-            if (confidence > threshold) & (classID == 0):
+            if (confidence > threshold) and (classID == 0):
                 #first 4 elemensts are box characteristics normalized to range(0,1)
                 #first two element are middle co-ordinate
                 # next two are width and height of blob           
