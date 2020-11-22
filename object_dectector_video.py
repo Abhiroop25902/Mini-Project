@@ -131,7 +131,7 @@ for i in tqdm (range (tot_frame), desc="Processing..."):
     # indices -> (dimension less than n)as the boxes might be overlapping, indices are the box which best fits the object and have best confidence, using NMS [Non-Maximum Suppression]
 
 
-    no_of_pixel_5m = 50000 #arbiitrary
+    no_of_pixel_5m = 500 #arbiitrary
 
     if len(indices) > 0:    # showing output
         for i in indices.flatten(): 
