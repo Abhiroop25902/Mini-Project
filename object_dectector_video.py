@@ -3,6 +3,9 @@ import cv2 as cv
 import numpy as np
 from scipy.spatial import distance
 
+from cv2 import colorChange 
+
+
 def object_detection_YOLO(img,threshold,nms_threshold):
     # determine the output layer
     ln = net.getLayerNames()
@@ -22,7 +25,6 @@ def object_detection_YOLO(img,threshold,nms_threshold):
     boxes = []
     confidences = []
     classIDs = []
-    centers = []
     h, w = img.shape[:2]
 
     for output in outputs:  #Outputs have all the detection and their probability for every class
@@ -42,7 +44,6 @@ def object_detection_YOLO(img,threshold,nms_threshold):
                 boxes.append(box)                       #added the box to boxes
                 confidences.append(float(confidence))   #added confidence to confidences
                 classIDs.append(classID)                #added classId to classIds
-                centers.append((centerX,centerY))
 
     indices = cv.dnn.NMSBoxes(boxes, confidences,score_threshold=threshold,nms_threshold=nms_threshold)
     #score_threshold -> threshold for confidence
@@ -50,17 +51,9 @@ def object_detection_YOLO(img,threshold,nms_threshold):
     #closeness is determined by IoU (intersetction over Union)
     #discarding is based on confidence, higer confidence is retained
 
-    results = []
-    if len(indices) > 0:
-        for i in indices.flatten():
-            (x, y) = (boxes[i][0], boxes[i][1])
-            (w,h) = (boxes[i][2],boxes[i][3])
-            r = (confidences[i], (w,h),(x, y),centers[i])
-            results.append(r)
+    return boxes,classIDs,confidences,indices
 
-    return results
-
-cap = cv.VideoCapture("pedestrians.mp4")
+cap = cv.VideoCapture("motionplaces hong kong00022-Oct2018_720.mp4")
 cap.set(cv.CAP_PROP_FRAME_WIDTH,1280)
 cap.set(cv.CAP_PROP_FRAME_HEIGHT,720)
 cap.set(cv.CAP_PROP_BUFFERSIZE,10)
@@ -86,19 +79,19 @@ while True:
     threshold = 0.5
     nms_threshold = 0.4
     
-    results = object_detection_YOLO(img,threshold,nms_threshold)
-    #results = (confidence,dimension,top_left,ceters)
+    boxes,classIDs,confidences,indices = object_detection_YOLO(img,threshold,nms_threshold)
     #let n be the number of detected objects
-    #confidence -> (n-dimension) confidence of the detected object
-    #dimension = (width , height) of the box
-    #top_left = (x,y) coordinate of top left corner
-    #centers -> (nx2 dimension)the center of the box
-    
-    no_of_pixel_5m = 1000 #arbiitrary
-    threshold_distance_pixel = 1 #arbitratry pixel value
+    #boxes-> (nx4 matrix)  4 values being x,y co-ordinate of top left corner of the box and with and height of the box respectively
+    #classIDs -> (n dimensional vector) the classIDs of the detected boxes (the ID with max probability out of 80 types)
+    #confidence -> (n dimensional vector) the max confidence
+    #indices -> (dimension less than n)as the boxes might be overlapping, indices are the box which best fits the object and have best confidence, using NMS [Non-Maximum Suppression]
+     
 
-    if len(results) > 2:    #showing output
-        centers = np.array([r[3] for r in results])
+    no_of_pixel_5m = 1000 #arbiitrary
+    threshold_distance_pixel = 50 #arbitratry pixel value
+
+    if len(indices) > 2:    #showing output
+        centers = np.array(boxes[:])
         pairwase_distance = distance.cdist(centers,centers)
         violate = set()
 
@@ -108,9 +101,9 @@ while True:
                     violate.add(i)
                     violate.add(j)
 
-        for (i, (prob,box_dim,bbox,center)) in enumerate(results): 
-            (x,y) = (bbox[0], bbox[1])     
-            (w,h) = box_dim
+        for i in indices.flatten(): 
+            (x, y) = (boxes[i][0], boxes[i][1])     #top-left corner
+            (w, h) = (boxes[i][2], boxes[i][3])     #width and height
             dist = w*h*5/no_of_pixel_5m
 
             color = green
@@ -119,7 +112,8 @@ while True:
                 color = red
 
             cv.rectangle(img, (x, y), (x + w, y + h), color, 2)     #making rectangle takes two opposite corners as input
-            text = "{:.2f}m".format(dist)
+            #text = "{}: {:.4f}".format(classes[classIDs[i]], confidences[i])
+            text = "{} {:.2f} {:.2f}m".format(classes[classIDs[i]],confidences[i],dist)
             cv.putText(img, text, (x, y - 5), cv.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
         
         
