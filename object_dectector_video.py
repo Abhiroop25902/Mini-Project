@@ -2,7 +2,6 @@
 import cv2 as cv
 import numpy as np
 
-
 def object_detection_YOLO(img,threshold,nms_threshold):
     # determine the output layers
     ln = net.getLayerNames()
@@ -27,9 +26,10 @@ def object_detection_YOLO(img,threshold,nms_threshold):
             scores = detection[5:]  # everything in array after 5th element
             classID = np.argmax(scores)     # picks the maximum probability
             confidence = scores[classID]    
-            if confidence > threshold and classID==0:
-                # first 4 elements are box characteristics normalized to range(0,1)
-                # first two element are middle co-ordinate
+
+            if (confidence > threshold) and (classID == 0):
+                #first 4 elemensts are box characteristics normalized to range(0,1)
+                #first two element are middle co-ordinate
                 # next two are width and height of blob           
                 box = detection[:4] * np.array([w, h, w, h])    
                 (centerX, centerY, width, height) = box.astype("int")   # typecasting to int, as array indexes are int
@@ -47,6 +47,7 @@ def object_detection_YOLO(img,threshold,nms_threshold):
     # discarding is based on confidence, higher confidence is retained
 
     return boxes,classIDs,confidences,indices
+
 
 # def birds_eye_view(corner_points,width,height,image):
 #     """
@@ -78,8 +79,9 @@ def object_detection_YOLO(img,threshold,nms_threshold):
 #     for i in range(0,transformed_points.shape[0]):
 #         transformed_points_list.append([transformed_points[i][0][0],transformed_points[i][0][1]])
 #     return transformed_points_list
+      
+      cap = cv.VideoCapture("pedestrians.mp4")
 
-cap = cv.VideoCapture("video_edited.mp4")
 cap.set(cv.CAP_PROP_FRAME_WIDTH,1280)
 cap.set(cv.CAP_PROP_FRAME_HEIGHT,720)
 cap.set(cv.CAP_PROP_BUFFERSIZE,10)
@@ -110,17 +112,18 @@ while True:
     # confidence -> (n dimensional vector) the max confidence
     # indices -> (dimension less than n)as the boxes might be overlapping, indices are the box which best fits the object and have best confidence, using NMS [Non-Maximum Suppression]
 
-    no_of_pixel_5m = 1000  # arbitrary
+
+    no_of_pixel_5m = 50000 #arbiitrary
 
     if len(indices) > 0:    # showing output
         for i in indices.flatten(): 
-            # if classIDs[i] == 0:
+
             (x, y) = (boxes[i][0], boxes[i][1])     # top-left corner
             (w, h) = (boxes[i][2], boxes[i][3])     # width and height
             dist = w*h*5/no_of_pixel_5m
             color = [int(c) for c in colors[classIDs[i]]]   # using randomised color for classes made above
             cv.rectangle(img, (x, y), (x + w, y + h), color, 2)  # making rectangle takes two opposite corners as input
-            text = f"{classes[classIDs[i]]}, {round(confidences[i],4)*100}%, {round(dist,2)}m"
+            text = f"{round(confidences[i],4)*100}%, {round(dist,2)}m"
             cv.putText(img, text, (x, y - 5), cv.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
 
     cv.imshow('Video', img)
