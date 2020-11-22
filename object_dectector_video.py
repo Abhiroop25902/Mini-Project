@@ -1,6 +1,9 @@
 # YOLO object detection
 import cv2 as cv
 import numpy as np
+from scipy.spatial import distance
+
+from cv2 import colorChange 
 
 
 def object_detection_YOLO(img,threshold,nms_threshold):
@@ -24,14 +27,12 @@ def object_detection_YOLO(img,threshold,nms_threshold):
     classIDs = []
     h, w = img.shape[:2]
 
-    
-
     for output in outputs:  #Outputs have all the detection and their probability for every class
         for detection in output:    #detection is the the list of all probabilities with box dimension in start
             scores = detection[5:]  #everything in array after 5th elements
             classID = np.argmax(scores)     #picks the maximum probability
             confidence = scores[classID]    
-            if confidence > threshold:
+            if (confidence > threshold) & (classID == 0):
                 #first 4 elemensts are box characteristics normalized to range(0,1)
                 #first two element are middle co-ordinate
                 # next two are width and height of blob           
@@ -52,7 +53,7 @@ def object_detection_YOLO(img,threshold,nms_threshold):
 
     return boxes,classIDs,confidences,indices
 
-cap = cv.VideoCapture("video_edited.mp4")
+cap = cv.VideoCapture("motionplaces hong kong00022-Oct2018_720.mp4")
 cap.set(cv.CAP_PROP_FRAME_WIDTH,1280)
 cap.set(cv.CAP_PROP_FRAME_HEIGHT,720)
 cap.set(cv.CAP_PROP_BUFFERSIZE,10)
@@ -60,9 +61,8 @@ cap.set(cv.CAP_PROP_BUFFERSIZE,10)
 
 # Load names of classes and get random colors
 classes = open('coco.names').read().strip().split('\n')
-np.random.seed(42)
-colors = np.random.randint(0, 255, size=(len(classes), 3), dtype='uint8') #gives different color to different classes
-
+green = (0,255,0)
+red = (0,0,255)
 # Give the configuration and weight files for the model and load the network.
 net = cv.dnn.readNetFromDarknet('yolov3.cfg', 'yolov3.weights')     #Reads Network from .cfg and .weights
 net.setPreferableBackend(cv.dnn.DNN_BACKEND_CUDA)     #this sprcifies what type of hardware to use (GPU or CPU)
@@ -88,18 +88,37 @@ while True:
      
 
     no_of_pixel_5m = 1000 #arbiitrary
+    threshold_distance_pixel = 50 #arbitratry pixel value
 
-    if len(indices) > 0:    #showing output
+    if len(indices) > 2:    #showing output
+        centers = np.array(boxes[:])
+        pairwase_distance = distance.cdist(centers,centers)
+        violate = set()
+
+        for i in range(0,pairwase_distance.shape[0]):
+            for j in range(0, pairwase_distance.shape[1]):
+                if pairwase_distance[i,j] < threshold_distance_pixel:
+                    violate.add(i)
+                    violate.add(j)
+
         for i in indices.flatten(): 
-            if classIDs[i] == 0:
-                (x, y) = (boxes[i][0], boxes[i][1])     #top-left corner
-                (w, h) = (boxes[i][2], boxes[i][3])     #width and height
-                dist = w*h*5/no_of_pixel_5m
-                color = [int(c) for c in colors[classIDs[i]]]   #using randomised color for classes made above
-                cv.rectangle(img, (x, y), (x + w, y + h), color, 2)     #making rectangle takes two opposite corners as input
-                #text = "{}: {:.4f}".format(classes[classIDs[i]], confidences[i])
-                text = "{} {:.2f} {:.2f}m".format(classes[classIDs[i]],confidences[i],dist)
-                cv.putText(img, text, (x, y - 5), cv.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
+            (x, y) = (boxes[i][0], boxes[i][1])     #top-left corner
+            (w, h) = (boxes[i][2], boxes[i][3])     #width and height
+            dist = w*h*5/no_of_pixel_5m
+
+            color = green
+
+            if i in violate:
+                color = red
+
+            cv.rectangle(img, (x, y), (x + w, y + h), color, 2)     #making rectangle takes two opposite corners as input
+            #text = "{}: {:.4f}".format(classes[classIDs[i]], confidences[i])
+            text = "{} {:.2f} {:.2f}m".format(classes[classIDs[i]],confidences[i],dist)
+            cv.putText(img, text, (x, y - 5), cv.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
+        
+        
+                
+               
 
     cv.imshow('Video', img)
     #cv.imwrite("output.jpg",img)
