@@ -1,6 +1,8 @@
 # YOLO object detection
 import cv2 as cv
 import numpy as np
+from tqdm.std import tqdm  #for system
+#from tqdm.notebook import tqdm #for googl colab
 
 def total_frames(file_name):
     cap = cv.VideoCapture(file_name)
@@ -94,7 +96,6 @@ def object_detection_YOLO(img,threshold,nms_threshold):
 
 
 file_name = "pedestrians.mp4"
-print("Finding Total Frames:")
 tot_frame = total_frames(file_name)
 print(f"Total Frames: {tot_frame}")
 cap = cv.VideoCapture(file_name)
@@ -115,7 +116,7 @@ net.setPreferableTarget(cv.dnn.DNN_TARGET_CUDA)     # sets preferable hardware
 
 frame = 0
 
-while True:
+for i in tqdm (range (tot_frame), desc="Processing..."): 
     ret,img = cap.read()
     if not ret: break
 
@@ -145,7 +146,7 @@ while True:
 
     out.write(img)
     frame = frame + 1
-    print(f"{frame/tot_frame * 100}% done")
+
 
 cap.release()
 out.release()
