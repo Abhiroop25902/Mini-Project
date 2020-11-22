@@ -120,7 +120,7 @@ while True:
 
             (x, y) = (boxes[i][0], boxes[i][1])     # top-left corner
             (w, h) = (boxes[i][2], boxes[i][3])     # width and height
-            dist = w*h*5/no_of_pixel_5m
+            dist = 5*no_of_pixel_5m/(w*h)
             color = [int(c) for c in colors[classIDs[i]]]   # using randomised color for classes made above
             cv.rectangle(img, (x, y), (x + w, y + h), color, 2)  # making rectangle takes two opposite corners as input
             text = "{:.2f}% , {:.2f}m".format(confidences[i],dist)
