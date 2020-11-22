@@ -2,6 +2,18 @@
 import cv2 as cv
 import numpy as np
 
+def total_frames(file_name):
+    cap = cv.VideoCapture(file_name)
+    res = 0
+
+    while True:
+        ret,img = cap.read()
+
+        if not ret: break
+        res = res+1
+    
+    return ret
+
 def object_detection_YOLO(img,threshold,nms_threshold):
     # determine the output layers
     ln = net.getLayerNames()
@@ -79,8 +91,10 @@ def object_detection_YOLO(img,threshold,nms_threshold):
 #     for i in range(0,transformed_points.shape[0]):
 #         transformed_points_list.append([transformed_points[i][0][0],transformed_points[i][0][1]])
 #     return transformed_points_list
-      
-cap = cv.VideoCapture("pedestrians.mp4")
+file_name = "pedestrians.mp4"
+
+frames = total_frames(file_name)
+cap = cv.VideoCapture(file_name)
 
 cap.set(cv.CAP_PROP_FRAME_WIDTH,1280)
 cap.set(cv.CAP_PROP_FRAME_HEIGHT,720)
