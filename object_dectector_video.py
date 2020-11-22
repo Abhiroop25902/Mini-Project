@@ -12,7 +12,7 @@ def total_frames(file_name):
         if not ret: break
         res = res+1
     
-    return ret
+    return res
 
 def object_detection_YOLO(img,threshold,nms_threshold):
     # determine the output layers
@@ -146,5 +146,5 @@ while True:
     frame = frame + 1
     print(f"{frame/tot_frame * 100}% done")
 
-    cap.release()
-    out.release()
+cap.release()
+out.release()
