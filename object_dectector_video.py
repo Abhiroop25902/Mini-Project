@@ -91,15 +91,15 @@ def object_detection_YOLO(img,threshold,nms_threshold):
 #     for i in range(0,transformed_points.shape[0]):
 #         transformed_points_list.append([transformed_points[i][0][0],transformed_points[i][0][1]])
 #     return transformed_points_list
+
+
 file_name = "pedestrians.mp4"
 
-frames = total_frames(file_name)
+tot_frame = total_frames(file_name)
 cap = cv.VideoCapture(file_name)
 
-cap.set(cv.CAP_PROP_FRAME_WIDTH,1280)
-cap.set(cv.CAP_PROP_FRAME_HEIGHT,720)
-cap.set(cv.CAP_PROP_BUFFERSIZE,10)
-
+fourcc = cv.VideoWriter_fourcc(*'mp4v')
+out = cv.VideoWriter('output.mp4',fourcc, 20.0,(1280,720))
 
 # Load names of classes and get random colors
 with open("coco.names") as f:
@@ -111,6 +111,8 @@ colors=np.random.randint(0, 255, size=(len(classes), 3), dtype='uint8')  # gives
 net = cv.dnn.readNetFromDarknet('yolov3.cfg', 'yolov3.weights')  # Reads Network from .cfg and .weights
 net.setPreferableBackend(cv.dnn.DNN_BACKEND_CUDA)   # this specifies what type of hardware to use (GPU or CPU)
 net.setPreferableTarget(cv.dnn.DNN_TARGET_CUDA)     # sets preferable hardware
+
+frame = 0
 
 while True:
     ret,img = cap.read()
@@ -140,9 +142,9 @@ while True:
             text = "{:.2f}% , {:.2f}m".format(confidences[i],dist)
             cv.putText(img, text, (x, y - 5), cv.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
 
-    cv.imshow('Video', img)
-    k=cv.waitKey(1)
-    if (k==27) or (k==113): 
-        break
+    out.write(img)
+    frame = frame + 1
+    print(f"{frame/tot_frame * 100}% done")
 
-cv.destroyAllWindows()
+    cap.release()
+    out.release()
