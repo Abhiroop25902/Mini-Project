@@ -1,6 +1,8 @@
 # YOLO object detection
 import cv2 as cv
 import numpy as np
+from tqdm.std import tqdm  #for system
+#from tqdm.notebook import tqdm #for googl colab
 
 def total_frames(file_name):
     cap = cv.VideoCapture(file_name)
@@ -12,7 +14,7 @@ def total_frames(file_name):
         if not ret: break
         res = res+1
     
-    return ret
+    return res
 
 def object_detection_YOLO(img,threshold,nms_threshold):
     # determine the output layers
@@ -91,15 +93,15 @@ def object_detection_YOLO(img,threshold,nms_threshold):
 #     for i in range(0,transformed_points.shape[0]):
 #         transformed_points_list.append([transformed_points[i][0][0],transformed_points[i][0][1]])
 #     return transformed_points_list
-file_name = "pedestrians.mp4"
 
-frames = total_frames(file_name)
+
+file_name = "pedestrians.mp4"
+tot_frame = total_frames(file_name)
+print(f"Total Frames: {tot_frame}")
 cap = cv.VideoCapture(file_name)
 
-cap.set(cv.CAP_PROP_FRAME_WIDTH,1280)
-cap.set(cv.CAP_PROP_FRAME_HEIGHT,720)
-cap.set(cv.CAP_PROP_BUFFERSIZE,10)
-
+fourcc = cv.VideoWriter_fourcc(*'mp4v')
+out = cv.VideoWriter('output.mp4',fourcc, 20.0,(1280,720))
 
 # Load names of classes and get random colors
 with open("coco.names") as f:
@@ -112,7 +114,9 @@ net = cv.dnn.readNetFromDarknet('yolov3.cfg', 'yolov3.weights')  # Reads Network
 net.setPreferableBackend(cv.dnn.DNN_BACKEND_CUDA)   # this specifies what type of hardware to use (GPU or CPU)
 net.setPreferableTarget(cv.dnn.DNN_TARGET_CUDA)     # sets preferable hardware
 
-while True:
+frame = 0
+
+for i in tqdm (range (tot_frame), desc="Processing..."): 
     ret,img = cap.read()
     if not ret: break
 
@@ -127,7 +131,7 @@ while True:
     # indices -> (dimension less than n)as the boxes might be overlapping, indices are the box which best fits the object and have best confidence, using NMS [Non-Maximum Suppression]
 
 
-    no_of_pixel_5m = 50000 #arbiitrary
+    no_of_pixel_5m = 500 #arbiitrary
 
     if len(indices) > 0:    # showing output
         for i in indices.flatten(): 
@@ -140,9 +144,9 @@ while True:
             text = "{:.2f}% , {:.2f}m".format(confidences[i],dist)
             cv.putText(img, text, (x, y - 5), cv.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
 
-    cv.imshow('Video', img)
-    k=cv.waitKey(1)
-    if (k==27) or (k==113): 
-        break
+    out.write(img)
+    frame = frame + 1
 
-cv.destroyAllWindows()
+
+cap.release()
+out.release()
