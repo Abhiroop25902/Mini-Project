@@ -1,52 +1,63 @@
 # YOLO object detection
 import cv2 as cv
 import numpy as np
+from scipy.spatial import distance
 
-def object_detection_YOLO(img,threshold,nms_threshold):
+
+def object_detection_YOLO(img, threshold, nms_threshold):
+    results=[]
     # determine the output layers
     ln = net.getLayerNames()
     ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
     # construct a blob from the image
     # blob is just a preprocessed image
-    blob = cv.dnn.blobFromImage(img, 1/255.0, (416, 416), swapRB=True, crop=False)      #blob = boxes
+    blob = cv.dnn.blobFromImage(img, 1 / 255.0, (416, 416), swapRB=True, crop=False)  # blob = boxes
     # blobs goes as the input to YOLO
     # inputting blob to the Neural Network
     net.setInput(blob)
     # t0 = time.time()
-    outputs = net.forward(ln)   # finds output
+    outputs = net.forward(ln)  # finds output
     # t = time.time()
     # print('time=', t-t0)
 
     boxes = []
     confidences = []
-    classIDs = []
+    centroids=[]
     h, w = img.shape[:2]
     for output in outputs:  # Outputs have all the detection and their probability for every class
-        for detection in output:    # detection is the the list of all probabilities with box dimension in start
+        for detection in output:  # detection is the the list of all probabilities with box dimension in start
             scores = detection[5:]  # everything in array after 5th element
-            classID = np.argmax(scores)     # picks the maximum probability
-            confidence = scores[classID]    
+            classID = np.argmax(scores)  # picks the maximum probability
+            confidence = scores[classID]
 
-            if (confidence > threshold) and (classID == 0):
-                #first 4 elemensts are box characteristics normalized to range(0,1)
-                #first two element are middle co-ordinate
-                # next two are width and height of blob           
-                box = detection[:4] * np.array([w, h, w, h])    
-                (centerX, centerY, width, height) = box.astype("int")   # typecasting to int, as array indexes are int
-                x = int(centerX - (width / 2))      # finding upper corner
+            if confidence > threshold and classID == 0:
+                # first 4 elements are box characteristics normalized to range(0,1)
+                # first two element are middle co-ordinate
+                # next two are width and height of blob
+                box = detection[:4] * np.array([w, h, w, h])
+                (centerX, centerY, width, height) = box.astype("int")  # typecasting to int, as array indexes are int
+                x = int(centerX - (width / 2))  # finding upper left corner
                 y = int(centerY - (height / 2))
-                box = [x, y, int(width), int(height)]   # changing origin to top left and typecasted to int
-                boxes.append(box)                       # added the box to boxes
-                confidences.append(float(confidence))   # added confidence to confidences
-                classIDs.append(classID)                # added classId to classIds
+                box = [x, y, int(width), int(height)]  # changing origin to top left and typecasted to int
+                boxes.append(box)  # added the box to boxes
+                confidences.append(float(confidence))  # added confidence to confidences
+                centroids.append((centerX,centerY))
 
-    indices = cv.dnn.NMSBoxes(boxes, confidences,score_threshold=threshold,nms_threshold=nms_threshold)
+    indices = cv.dnn.NMSBoxes(boxes, confidences, score_threshold=threshold, nms_threshold=nms_threshold)
+    if len(indices):
+        for i in indices.flatten():
+            x,y=boxes[i][0],boxes[i][1]
+            w,h=boxes[i][2],boxes[i][3]
+
+            r = (confidences[i], (x, y, x + w, y + h), centroids[i])
+            results.append(r)
+
     # score_threshold -> threshold for confidence
     # nms_threshold -> threshold for how close to blobs are, if two blobs are too close, one of them is discarded
     # closeness is determined by IoU (intersection over Union)
     # discarding is based on confidence, higher confidence is retained
 
-    return boxes,classIDs,confidences,indices
+    return results
 
 
 # def birds_eye_view(corner_points,width,height,image):
@@ -79,55 +90,74 @@ def object_detection_YOLO(img,threshold,nms_threshold):
 #     for i in range(0,transformed_points.shape[0]):
 #         transformed_points_list.append([transformed_points[i][0][0],transformed_points[i][0][1]])
 #     return transformed_points_list
-      
-      cap = cv.VideoCapture("pedestrians.mp4")
 
-cap.set(cv.CAP_PROP_FRAME_WIDTH,1280)
-cap.set(cv.CAP_PROP_FRAME_HEIGHT,720)
-cap.set(cv.CAP_PROP_BUFFERSIZE,10)
+cap = cv.VideoCapture("pedestrians.mp4")
 
+cap.set(cv.CAP_PROP_FRAME_WIDTH, 1280)
+cap.set(cv.CAP_PROP_FRAME_HEIGHT, 720)
+cap.set(cv.CAP_PROP_BUFFERSIZE, 10)
 
 # Load names of classes and get random colors
 with open("coco.names") as f:
-    classes=f.read().strip().split("\n")
+    classes = f.read().strip().split("\n")
 np.random.seed(42)
-colors=np.random.randint(0, 255, size=(len(classes), 3), dtype='uint8')  # gives different color to different classes
+colors = np.random.randint(0, 255, size=(len(classes), 3), dtype='uint8')  # gives different color to different classes
 
 # Give the configuration and weight files for the model and load the network.
 net = cv.dnn.readNetFromDarknet('yolov3.cfg', 'yolov3.weights')  # Reads Network from .cfg and .weights
-net.setPreferableBackend(cv.dnn.DNN_BACKEND_CUDA)   # this specifies what type of hardware to use (GPU or CPU)
-net.setPreferableTarget(cv.dnn.DNN_TARGET_CUDA)     # sets preferable hardware
+net.setPreferableBackend(cv.dnn.DNN_BACKEND_CUDA)  # this specifies what type of hardware to use (GPU or CPU)
+net.setPreferableTarget(cv.dnn.DNN_TARGET_CUDA)  # sets preferable hardware
 
+threshold = 0.5
+nms_threshold = 0.4
+distance_px=100   # arbitrary value for now but looked best
+writer= cv.VideoWriter("result.avi",cv.VideoWriter_fourcc(*"XVID"), 25,(1280, 720), True)
 while True:
-    ret,img = cap.read()
+    ret, img = cap.read()
     if not ret: break
 
-    threshold = 0.5
-    nms_threshold = 0.4
-    
-    boxes,classIDs,confidences,indices = object_detection_YOLO(img,threshold,nms_threshold)
-    # let n be the number of detected objects
-    # boxes-> (nx4 matrix)  4 values being x,y co-ordinate of top left corner of the box and with and height of the box respectively
-    # classIDs -> (n dimensional vector) the classIDs of the detected boxes (the ID with max probability out of 80 types)
-    # confidence -> (n dimensional vector) the max confidence
-    # indices -> (dimension less than n)as the boxes might be overlapping, indices are the box which best fits the object and have best confidence, using NMS [Non-Maximum Suppression]
+    results=object_detection_YOLO(img, threshold, nms_threshold)
+    violate=set()
 
-
-    no_of_pixel_5m = 50000 #arbiitrary
-
-    if len(indices) > 0:    # showing output
-        for i in indices.flatten(): 
-
-            (x, y) = (boxes[i][0], boxes[i][1])     # top-left corner
-            (w, h) = (boxes[i][2], boxes[i][3])     # width and height
-            dist = w*h*5/no_of_pixel_5m
-            color = [int(c) for c in colors[classIDs[i]]]   # using randomised color for classes made above
-            cv.rectangle(img, (x, y), (x + w, y + h), color, 2)  # making rectangle takes two opposite corners as input
-            text = f"{round(confidences[i],4)*100}%, {round(dist,2)}m"
-            cv.putText(img, text, (x, y - 5), cv.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
-
+    if len(results)>1:
+        centres=np.array([r[2] for r in results])
+        D=distance.cdist(centres,centres,metric="euclidean")
+        # loop over the upper triangular of the distance matrix
+        for i in range(0, D.shape[0]):
+            for j in range(i + 1, D.shape[1]):
+                # check to see if the distance between any two
+                # centroid pairs is less than the configured number
+                # of pixels
+                if D[i, j] < distance_px:
+                    # update our violation set with the indexes of
+                    # the centroid pairs
+                    violate.add(i)
+                    violate.add(j)
+    # loop over the results
+    for (i, (prob, bbox, centroid)) in enumerate(results):
+        # extract the bounding box and centroid coordinates, then
+        # initialize the color of the annotation
+        (startX, startY, endX, endY) = bbox
+        (cX, cY) = centroid
+        color = (0, 255, 0)
+        # if the index pair exists within the violation set, then
+        # update the color
+        if i in violate:
+            color = (0, 0, 255)
+        # draw (1) a bounding box around the person and (2) the
+        # centroid coordinates of the person,
+        cv.rectangle(img, (startX, startY), (endX, endY), color, 2)
+        cv.circle(img, (cX, cY), 5, color, 1)
+    # draw the total number of social distancing violations on the
+    # output frame
+    text = "Social Distancing Violations: {}".format(len(violate))
+    cv.putText(img, text, (10, img.shape[0] - 25), cv.FONT_HERSHEY_SIMPLEX, 0.85, (0, 0, 255), 3)
     cv.imshow('Video', img)
-    k=cv.waitKey(1)
-    if k==27: break
 
+    # create an output file named result.avi (uncomment if wanted)
+    # writer.write(img)
+    k = cv.waitKey(1)
+    if k == 27: break
+
+writer.release()
 cv.destroyAllWindows()
