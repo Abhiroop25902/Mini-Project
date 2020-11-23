@@ -9,19 +9,20 @@ Original file is located at
 # **Initial Setup**
 """
 
-#!gdown --id 1-N8aXiUxnB2dOpeDIU9y0wJP2ioLjKtl --output cv2.cpython-36m-x86_64-linux-gnu.so #enable GPU support
+!gdown --id 1-N8aXiUxnB2dOpeDIU9y0wJP2ioLjKtl --output cv2.cpython-36m-x86_64-linux-gnu.so #enable GPU support
 
-#!gdown --id 19yjsdPXQ2DQURD1xqzYHrGTdhMbgGywL --output pedestrians.mp4
-#!gdown --id 1jgMqCnnZ5PYQxFHvJRp8W8URcQhohbJZ --output coco.names
-#!gdown --id 1UuzgjSOwLJHE6FrGjluwh9ORyknlJfBw --output yolov3.cfg
-#!gdown --id 1qlBKyUChyvkMc3YcSnc_4JpcxeS-93lY --output yolov3.weights
+!gdown --id 19yjsdPXQ2DQURD1xqzYHrGTdhMbgGywL --output pedestrians.mp4
+!gdown --id 1jgMqCnnZ5PYQxFHvJRp8W8URcQhohbJZ --output coco.names
+!gdown --id 1UuzgjSOwLJHE6FrGjluwh9ORyknlJfBw --output yolov3.cfg
+!gdown --id 1qlBKyUChyvkMc3YcSnc_4JpcxeS-93lY --output yolov3.weights
 
 """# **Importing the libraries**"""
 
-import cv2 as cv
-import numpy as np
-from tqdm.std import tqdm  #for system
-#from tqdm.notebook import tqdm #for googl colab
+import cv2 as cv #OpenCV Library
+import numpy as np  #for handling arrays
+from scipy.spatial import distance  #for cdist 
+#from tqdm.std import tqdm  #for system progressbar
+from tqdm.notebook import tqdm #for googl colab progressbar
 
 """# **Total frames counter**"""
 
@@ -56,7 +57,9 @@ def object_detection_YOLO(img,threshold,nms_threshold):
 
   boxes = []
   confidences = []
-  classIDs = []
+  centroids = []
+  results = []
+
   h, w = img.shape[:2]
   for output in outputs:  # Outputs have all the detection and their probability for every class
     for detection in output:    # detection is the the list of all probabilities with box dimension in start
@@ -75,14 +78,23 @@ def object_detection_YOLO(img,threshold,nms_threshold):
         box = [x, y, int(width), int(height)]   # changing origin to top left and typecasted to int
         boxes.append(box)                       # added the box to boxes
         confidences.append(float(confidence))   # added confidence to confidences
-        classIDs.append(classID)                # added classId to classIds
+        centroids.append((centerX,centerY))
+
   indices = cv.dnn.NMSBoxes(boxes, confidences,score_threshold=threshold,nms_threshold=nms_threshold)
   # score_threshold -> threshold for confidence
   # nms_threshold -> threshold for how close to blobs are, if two blobs are too close, one of them is discarded
   # closeness is determined by IoU (intersection over Union)
   # discarding is based on confidence, higher confidence is retained
 
-  return boxes,classIDs,confidences,indices
+  if len(indices):
+        for i in indices.flatten():
+            x,y=boxes[i][0],boxes[i][1]
+            w,h=boxes[i][2],boxes[i][3]
+
+            r = (confidences[i], (x, y, x + w, y + h), centroids[i])
+            results.append(r)
+
+  return results
 
 """# **Bird's eye prespective (provisional)**"""
 
@@ -132,8 +144,6 @@ out = cv.VideoWriter('output.mp4',fourcc, 20.0,(1280,720))
 # Load names of classes and get random colors
 with open("coco.names") as f:
   classes=f.read().strip().split("\n")
-np.random.seed(42)
-colors=np.random.randint(0, 255, size=(len(classes), 3), dtype='uint8')  # gives different color to different classes
 
 """# **Network setup**"""
 
@@ -142,6 +152,10 @@ net = cv.dnn.readNetFromDarknet('yolov3.cfg', 'yolov3.weights')  # Reads Network
 net.setPreferableBackend(cv.dnn.DNN_BACKEND_CUDA)   # this specifies what type of hardware to use (GPU or CPU)
 net.setPreferableTarget(cv.dnn.DNN_TARGET_CUDA)     # sets preferable hardware
 
+threshold = 0.5
+nms_threshold = 0.4
+distance_px=100   # arbitrary value for now but looked best
+
 """# **Process the input**"""
 
 frame = 0
@@ -149,31 +163,46 @@ frame = 0
 for i in tqdm (range (tot_frame), desc="Processing..."): 
   ret,img = cap.read()
   if not ret: break
+        
+  results=object_detection_YOLO(img, threshold, nms_threshold)
+  # results = (confidence,bbox,centroid)
+  # confidence -> confidence of the detected object
+  # bbox -> top left and bottom right corner, 4 values list
+  #centroid -> center of the bbox, 2 values list
 
-  threshold = 0.5
-  nms_threshold = 0.4   
-                
-  boxes,classIDs,confidences,indices = object_detection_YOLO(img,threshold,nms_threshold)
-  # let n be the number of detected objects
-  # boxes-> (nx4 matrix)  4 values being x,y co-ordinate of top left corner of the box and with and height of the box respectively
-  # classIDs -> (n dimensional vector) the classIDs of the detected boxes (the ID with max probability out of 80 types)
-  # confidence -> (n dimensional vector) the max confidence  
-  # indices -> (dimension less than n)as the boxes might be overlapping, indices are the box which best fits the object and have best confidence, using NMS [Non-Maximum Suppression]
-  no_of_pixel_5m = 500 #arbiitrary
+  violate=set()
 
-  if len(indices) > 0:    # showing output
-    for i in indices.flatten(): 
+  if len(results)>=2:
+        centres=np.array([r[2] for r in results])
+        D=distance.cdist(centres,centres,metric="euclidean")
+        # loop over the upper triangular of the distance matrix
+        for i in range(0, D.shape[0]):
+            for j in range(i + 1, D.shape[1]):
+                # check to see if the distance between any two centroid pairs is less than the configured number of pixels
+                if D[i, j] < distance_px:
+                    # update our violation set with the indexes of the centroid pairs
+                    violate.add(i)
+                    violate.add(j)
 
-      (x, y) = (boxes[i][0], boxes[i][1])     # top-left corner
-      (w, h) = (boxes[i][2], boxes[i][3])     # width and height
-      dist = 5*no_of_pixel_5m/(w*h)
-      color = [int(c) for c in colors[classIDs[i]]]   # using randomised color for classes made above
-      cv.rectangle(img, (x, y), (x + w, y + h), color, 2)  # making rectangle takes two opposite corners as input
-      text = "{:.2f}% , {:.2f}m".format(confidences[i],dist)
-      cv.putText(img, text, (x, y - 5), cv.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
+  # loop over the results
+  for (i, (prob, bbox, centroid)) in enumerate(results):
+      # extract the bounding box and centroid coordinates, then initialize the color of the annotation
+      (startX, startY, endX, endY) = bbox
+      (cX, cY) = centroid
+      color = (0, 255, 0) #green in BGR
+      # if the index pair exists within the violation set, then update the color
+      if i in violate:
+          color = (0, 0, 255) #red in BGR
+      cv.rectangle(img, (startX, startY), (endX, endY), color, 2) #draw bounding box
+      cv.circle(img, (cX, cY), 5, color, 1) #draw center
+
+  # draw the total number of social distancing violations on the output frame
+  text = "Social Distancing Violations: {}".format(len(violate))
+  cv.putText(img, text, (10, img.shape[0] - 25), cv.FONT_HERSHEY_SIMPLEX, 0.85, (0, 0, 255), 3)
 
   out.write(img)
   frame = frame + 1
 
 cap.release()
 out.release()
+print("Processing Completed, Download output.mp4 to View Results")
