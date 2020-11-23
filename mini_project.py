@@ -21,7 +21,7 @@ Original file is located at
 import cv2 as cv
 import numpy as np
 from tqdm.std import tqdm  #for system
-#from tqdm.notebook import tqdm #for google colab
+#from tqdm.notebook import tqdm #for googl colab
 
 """# **Total frames counter**"""
 
@@ -106,7 +106,7 @@ def birds_eye_view(corner_points,width,height,image):
 
 def birds_eye_point(matrix,list_downoids):
   """ 
-  Apply the perspective transformation to every ground point which have been detected on the main frame.
+  Apply the perspective transformation to every ground point which has been detected on the main frame.
    matrix : the 3x3 matrix
    list_downoids : list that contains the points to transform
   return : list containing all the new points
@@ -124,7 +124,6 @@ def birds_eye_point(matrix,list_downoids):
 
 file_name = "pedestrians.mp4"
 tot_frame = total_frames(file_name)
-print(f"Total Frames: {tot_frame}")
 cap = cv.VideoCapture(file_name)
 
 fourcc = cv.VideoWriter_fourcc(*'mp4v')
