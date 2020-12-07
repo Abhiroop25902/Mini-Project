@@ -259,7 +259,7 @@ for i in tqdm (range (tot_frame), desc="Processing..."):
     text = "Social Distancing Violations: {}".format(len(violate))
     img = cv.putText(img, text, (10, img.shape[0]-25), cv.FONT_HERSHEY_SIMPLEX, 0.85, (0, 0, 255), 3)
 
-    output = np.zeros((400,1282,3),img.dtype);
+    output = np.zeros((400,1282,3),img.dtype)
 
     img_half = cv.resize(img,(640,360)) 
     output[0:40,0:640,0:3] = camera_view_heading
