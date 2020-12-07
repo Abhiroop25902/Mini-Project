@@ -9,21 +9,21 @@ Original file is located at
 # **Initial Setup**
 """
 
-!gdown --id 1-N8aXiUxnB2dOpeDIU9y0wJP2ioLjKtl --output cv2.cpython-36m-x86_64-linux-gnu.so #enable GPU support
+# !gdown --id 1-N8aXiUxnB2dOpeDIU9y0wJP2ioLjKtl --output cv2.cpython-36m-x86_64-linux-gnu.so #enable GPU support
 
-!gdown --id 19yjsdPXQ2DQURD1xqzYHrGTdhMbgGywL --output pedestrians.mp4
-!gdown --id 1jgMqCnnZ5PYQxFHvJRp8W8URcQhohbJZ --output coco.names
-!gdown --id 1UuzgjSOwLJHE6FrGjluwh9ORyknlJfBw --output yolov3.cfg
-!gdown --id 1qlBKyUChyvkMc3YcSnc_4JpcxeS-93lY --output yolov3.weights
-!gdown --id 1AW0Jiw6m7iDHS6XkTVDhnSMzWKqGKH5S --output static_frame_from_video.jpg
+# !gdown --id 19yjsdPXQ2DQURD1xqzYHrGTdhMbgGywL --output pedestrians.mp4
+# !gdown --id 1jgMqCnnZ5PYQxFHvJRp8W8URcQhohbJZ --output coco.names
+# !gdown --id 1UuzgjSOwLJHE6FrGjluwh9ORyknlJfBw --output yolov3.cfg
+# !gdown --id 1qlBKyUChyvkMc3YcSnc_4JpcxeS-93lY --output yolov3.weights
+# !gdown --id 1AW0Jiw6m7iDHS6XkTVDhnSMzWKqGKH5S --output static_frame_from_video.jpg
 
 """# **Importing the libraries**"""
 
 import cv2 as cv #OpenCV Library
 import numpy as np  #for handling arrays
 from scipy.spatial import distance  #for cdist 
-#from tqdm.std import tqdm  #for system progressbar
-from tqdm.notebook import tqdm #for googl colab progressbar
+from tqdm.std import tqdm  #for system progressbar
+# from tqdm.notebook import tqdm #for google colab progressbar
 
 """# **Total frames counter**"""
 
@@ -71,7 +71,7 @@ def object_detection_YOLO(img,threshold,nms_threshold):
             confidence = scores[classID] 
 
             if (confidence > threshold) and (classID == 0):
-                #first 4 elemensts are box characteristics normalized to range(0,1)
+                #first 4 elements are box characteristics normalized to range(0,1)
                 #first two element are middle co-ordinate
                 # next two are width and height of blob           
                 box = detection[:4] * np.array([w, h, w, h])    
@@ -101,7 +101,7 @@ def object_detection_YOLO(img,threshold,nms_threshold):
 
     return boxes_final,confidences_final,centroids_final
 
-"""# **Bird's Eye Prespective**"""
+"""# **Bird's Eye Perspective**"""
 
 def birds_eye_view(corner_points,width,height,image):
     """
@@ -120,7 +120,7 @@ def birds_eye_view(corner_points,width,height,image):
     
     return matrix,img_transformed
 
-"""# **Align The Centroids to the Bird's Eye Prespective**"""
+"""# **Align The Centroids to the Bird's Eye Perspective**"""
 
 def birds_eye_point(matrix,centroids):
     """ Apply the perspective transformation to every ground point which have been detected on the main frame.
