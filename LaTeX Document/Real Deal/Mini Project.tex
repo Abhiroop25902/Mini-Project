@@ -1,0 +1,67 @@
+\documentclass[a4paper, 12pt]{report}
+\usepackage[a4paper,hmargin={3cm,2.5cm},vmargin={2.5cm,2.5cm}]{geometry}
+
+\usepackage{tikz}
+\usetikzlibrary{calc}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\lhead{}
+\rhead{Mini Project Title}
+\lfoot{Dept. of Computer Engineering}
+
+\usepackage{lipsum}
+
+\begin{document}
+\begin{titlepage}
+    \begin{tikzpicture}[overlay,remember picture]
+        \draw[line width=4pt]
+        ($ (current page.north west) + (1cm,-1cm) $)
+        rectangle
+        ($ (current page.south east) + (-1cm,1cm) $);
+        \draw[line width=1.5pt]
+        ($ (current page.north west) + (1.2cm,-1.2cm) $)
+        rectangle
+        ($ (current page.south east) + (-1.2cm,1.2cm) $);
+    \end{tikzpicture}
+
+    \begin{center}
+
+        \textup{\large  \textbf{INDIAN INSTITUTE OF ENGINEERING}\\\textbf{SCIENCE AND TECHNOLOGY, SHIBPUR}}\\ Howrah, West Bengal, India - 711103\\[0.5cm]\textbf{\large DEPARTMENT OF COMPUTER SCIENCE}\\\textbf{\large AND TECHNOLOGY}
+
+        %---------------------------------Figure------------------------------
+        \begin{center}
+            \begin{figure}[h]   %h means here other options t , b, p, etc.
+                \centering
+                \includegraphics[width=0.3\linewidth]{Pictures/IIESTS Logo.png}
+            \end{figure}
+        \end{center}
+
+        %----------------------------
+
+        \textup{\large A REPORT\\[0.4cm]ON}\\[0.4cm]
+
+        \begin{LARGE}
+            {\textbf {"MINI PROJECT TITLE" }}
+        \end{LARGE}\\[1cm]
+
+        \textit{SUBMITTED BY}\\[0.3cm]
+        \begin{large}
+            \textbf{Abhinaba Chowdhury (510519007)}\\[0.1cm]
+            \textbf{Abhiroop Mukherjee (510510109)}\\[0.1cm]
+            \textbf{Debarghya Dey (510519087)}\\[0.1cm]
+            \textbf{Jyotiprakash Roy (510519016)}\\[0.1cm]
+            \textbf{Shrutanten (510519048)}\\[1cm]
+        \end{large}
+
+        \textit{UNDER THE GUIDANCE OF}\\[0.7cm]
+        \begin{large}
+            \textbf{DR. SAMIT BISWAS}\\[0.3cm]
+        \end{large}
+
+        \textbf{(Academic Year: 2020-2021)}
+    \end{center}   
+\end{titlepage}
+\newpage
+\lipsum
+\end{document}
