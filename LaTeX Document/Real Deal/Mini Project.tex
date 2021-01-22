@@ -12,6 +12,8 @@
 
 \usepackage{lipsum}
 
+\usepackage{multicol}
+
 \begin{document}
 \begin{titlepage}
     \begin{tikzpicture}[overlay,remember picture]
@@ -39,7 +41,7 @@
 
         %----------------------------
 
-        \textup{\large A REPORT\\[0.4cm]ON}\\[0.4cm]
+        \textup{\large A MINI-PROJECT REPORT SUBMITTED IN PARTIAL FULFILLMENT OF THE REQUIREMENTS\\[0.4cm]ON}\\[0.4cm]
 
         \begin{LARGE}
             {\textbf {"MINI PROJECT TITLE" }}
@@ -54,14 +56,72 @@
             \textbf{Shrutanten (510519048)}\\[1cm]
         \end{large}
 
-        \textit{UNDER THE GUIDANCE OF}\\[0.7cm]
+        \textit{UNDER THE GUIDANCE OF}\\[0.5cm]
         \begin{large}
             \textbf{DR. SAMIT BISWAS}\\[0.3cm]
         \end{large}
 
         \textbf{(Academic Year: 2020-2021)}
-    \end{center}   
+    \end{center}
 \end{titlepage}
-\newpage
-\lipsum
+%================begin of certificate page======================
+
+\begin{titlepage}
+    \begin{tikzpicture}[overlay,remember picture]
+        \draw[line width=4pt]
+        ($ (current page.north west) + (1cm,-1cm) $)
+        rectangle
+        ($ (current page.south east) + (-1cm,1cm) $);
+        \draw[line width=1.5pt]
+        ($ (current page.north west) + (1.2cm,-1.2cm) $)
+        rectangle
+        ($ (current page.south east) + (-1.2cm,1.2cm) $);
+    \end{tikzpicture}
+
+    \begin{center}
+        \textup{\large  \textbf{INDIAN INSTITUTE OF ENGINEERING}\\\textbf{SCIENCE AND TECHNOLOGY, SHIBPUR}}\\ Howrah, West Bengal, India - 711103\\[0.5cm]\textbf{\large DEPARTMENT OF COMPUTER SCIENCE}\\\textbf{\large AND TECHNOLOGY}
+
+        %---------------------------------Figure------------------------------
+        \begin{center}
+            \begin{figure}[h]   %h means here other options t , b, p, etc.
+                \centering
+                \includegraphics[width=0.3\linewidth]{Pictures/IIESTS Logo.png}
+            \end{figure}
+        \end{center}
+
+        %----------------------------
+
+
+        \begin{LARGE}
+            \textbf{\textit {Certificate}}
+        \end{LARGE}\\[1.2cm]
+
+        This is to certify that project entitled\\[0.5cm]\large\textbf{ "PROJECT TITLE HERE"}\\
+        has been completed by \\[0.2cm]
+        Abhinaba Chowdhury (510519007)\\
+        Abhiroop Mukherjee (510510109)\\
+        Debarghya Dey (510519087)\\
+        Jyotiprakash Roy (510519016)\\
+        Shrutanten (510519048)\\[0.2cm]
+    \end{center}
+    in partial fulfillment of the Third Semester of Bachelor degree in "Computer Science And Technology" as prescribed by the Indian Institute Of Engineering Science And Technology, Shibpur.
+
+    \vspace{2cm}
+    \begin{multicols}{2}
+        \begin{center}
+            \textbf{Dr. Samit Biswas}\hspace{5cm}
+        \end{center}
+        \begin{center}
+            \textbf{Dr. Sekhar Mandal\\Head Of Department}
+        \end{center}
+        \vspace{0.5cm}
+    \end{multicols}
+    \begin{center}
+        Indian Institute Of Engineering Science And Technology, Shibpur.\\
+        DD/MM/2021 \\
+    \end{center}
+    \vfill
+\end{titlepage}
+
+
 \end{document}
