@@ -160,7 +160,7 @@ working. These are:
     * OpenCV - version 2 or above
     * numPy
 
-* Hardware accelartion
+* Hardware acceleration
     * A GPU is optional yet recommended to get the best performance
     * If a GPU is not being used, the CPU need to be good enough
 

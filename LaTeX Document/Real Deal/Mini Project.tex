@@ -1,4 +1,4 @@
-\documentclass[a4paper, 12pt]{report}
+\documentclass[a4paper]{article}
 \usepackage[a4paper,hmargin={3cm,2.5cm},vmargin={2.5cm,2.5cm}]{geometry}
 
 \usepackage{tikz}
@@ -7,7 +7,7 @@
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \lhead{}
-\rhead{Mini Project Title}
+\rhead{\textcolor{red}{Mini Project Title}}
 \lfoot{Department of Computer Engineering}
 
 \usepackage{lipsum}
@@ -15,6 +15,10 @@
 \usepackage{multicol}
 
 \usepackage{ragged2e}
+
+\usepackage{xcolor}
+
+\usepackage{enumitem}
 
 \begin{document}
 \begin{titlepage}
@@ -46,7 +50,7 @@
         \textup{\large A MINI-PROJECT REPORT SUBMITTED IN PARTIAL FULFILLMENT OF THE REQUIREMENTS\\[0.4cm]ON}\\[0.4cm]
 
         \begin{LARGE}
-            {\textbf {"MINI PROJECT TITLE" }}
+            {\textbf {\textcolor{red}{"MINI PROJECT TITLE"}}}
         \end{LARGE}\\[1cm]
 
         \textit{SUBMITTED BY}\\[0.3cm]
@@ -123,33 +127,151 @@
 %================end of title page======================
 
 %----------------------ACKNOWLEDGEMENT---------------------------
-\pagenumbering{gobble}
 \pagebreak
 \newpage
 
-\begin{center}
-    {\Large{\bf{\textit{ACKNOWLEDGEMENT}}\\[2cm]}}
-\end{center}
+\begin{titlepage}
+    \begin{center}
+        {\Large{\bf{\textit{ACKNOWLEDGEMENT}}\\[2cm]}}
+    \end{center}
 
 
-\paragraph{\normalfont\textit{\indent We, as the students of IIEST, consider ourselves honoured to be working with Dr. Samit Biswas.
-        The success of this project would not have been possible without his useful insights,
-        appropriate guidance and necessary criticism.}}
-\paragraph{\normalfont\textit{\indent We would pass our token of token of gratitude to the Department of Computer Science And Technoogy as well for providing
-        us with the opportunity to be able to tackle real world problems while improving
-        our problem solving ability and thinking capacity by organising this project. We all have
-        learnt quite a handful of new skills and are eager to use them henceforth as well.}}
+    \paragraph{\normalfont\textit{\indent We, as the students of IIEST, consider ourselves honoured to be working with Dr. Samit Biswas.
+            The success of this project would not have been possible without his useful insights,
+            appropriate guidance and necessary criticism.}}
+    \paragraph{\normalfont\textit{\indent We would pass our token of token of gratitude to the Department of Computer Science And Technoogy as well for providing
+            us with the opportunity to be able to tackle real world problems while improving
+            our problem solving ability and thinking capacity by organising this project. We all have
+            learnt quite a handful of new skills and are eager to use them henceforth as well.}}
 
-\begin{flushleft}
-    \textit{Abhinaba Chowdhury (510519007)\\
-        Abhiroop Mukherjee (510510109)\\
-        Debarghya Dey (510519087)\\
-        Jyotiprakash Roy (510519016)\\
-        Shrutanten (510519048)}
+    \begin{flushleft}
+        \textit{Abhinaba Chowdhury (510519007)\\
+            Abhiroop Mukherjee (510510109)\\
+            Debarghya Dey (510519087)\\
+            Jyotiprakash Roy (510519016)\\
+            Shrutanten (510519048)}
 
-\end{flushleft}
+    \end{flushleft}
+\end{titlepage}
 
+\pagenumbering{roman}
+\setcounter{page}{1}
+\newpage
+\setcounter{tocdepth}{2} % + subsections
+\tableofcontents
+\lfoot{IIEST, Shibpur}
+\newpage
 
+\pagenumbering{arabic}
+\setcounter{page}{1}
 
+%%%%%%%%% MAIN TEXT STARTS HERE %%%%%%%%%%
+\section{INTRODUCTION}
+\subsection{Motivation}
+Coronaviruses are a group of related RNA viruses that cause diseases in mammals
+and birds. In humans and birds, they cause respiratory tract infections that can
+range from mild to lethal. Mild illnesses in humans include some cases of the
+common cold (which is also caused by other viruses, predominantly rhinoviruses),
+while more lethal varieties can cause SARS, MERS, and COVID-19.
+
+With the increase in the spread of the dangerous and highly contagious \textbf{Novel Coronavirus}
+and the underlying disease caused by it, \textbf{COVID-19},
+it is a requirement now more than ever to follow the social distancing
+norms set in place by the scientists and researchers.
+
+But as we all know, India is a country with a not-so-small population,
+so it is pretty understandable and obvious that the law enforcement will
+not be able to actually enforce it on every single person. Therefore,
+new means of automata in place of actual individuals is a no brainier.
+
+That is where we come in.
+
+\subsection{The Idea Behind The Project}
+The idea behind the working of this software was simple. The software just needed
+to be able to look at a live feed (or recorded footage) of a camera and know
+which of the people present in the footage are actually following the social
+distancing norms and which of them are not, and mark either one appropriately.
+That is where out journey to build a social distance checker started.
+
+\textcolor{red}{// will add more later probably lul}
+
+\newpage
+
+\section{PREREQUISITES}
+
+\subsection{Outdoor Requirements}
+It is important to mention here that this is not a portable software that can
+be fed any footage and just be expected to work. There need to be some
+calibration measures taken to actually get this software working:
+
+\begin{itemize}
+    \item Actually knowing the local social distancing norms
+          \begin{itemize}
+              \item The minimum distance set for social distancing by the local government
+          \end{itemize}
+
+    \item Finding a good position for the camera
+          \begin{itemize}
+              \item The footage needs to be taken from a high enough place
+          \end{itemize}
+
+    \item Knowing the required distance in pixels
+          \begin{itemize}
+              \item This will depend on the position and angle of the camera's view
+          \end{itemize}
+\end{itemize}
+
+\subsection{Hardware and Software Requirements}
+The tools used to build this software are platform independent. However,
+there are a few requirements needed to be fulfilled to get the program
+working. These are:
+
+\begin{itemize}
+    \item Software Requirements
+          \begin{itemize}
+              \item Python - 3.5 or above
+              \item OpenCV-Python - version 2 or above
+              \item YOLOv3 Configuration and Network Weights
+              \item Numpy
+          \end{itemize}
+
+    \item Hardware Requirements
+          \begin{itemize}
+              \item A GPU is optional yet recommended to get the best performance
+              \item If a GPU is not being used, the CPU need to be good enough
+          \end{itemize}
+\end{itemize}
+
+\section{THE PROJECT}
+\subsection{Software Used}
+The softwares used to build this \textit{checker} are:
+
+\subsubsection{An Integrated Development Environment (IDE)}
+An integrated development environment (IDE) is a software application that
+provides comprehensive facilities to computer programmers for software
+development. An IDE normally consists of at least a source code editor, build
+automation tools and a debugger. Some IDEs contain the necessary compiler,
+interpreter, or both; others, do not.
+
+\subsubsection{Python}
+Python is an interpreted, high-level and general-purpose programming language.
+Python's design philosophy emphasizes code readability with its notable use of
+significant whitespace. Its language constructs and object-oriented approach aim
+to help programmers write clear, logical code for small and large-scale projects.
+
+\paragraph{Why did we choose Python?}
+\begin{enumerate}
+    \item Python has an upper hand when it comes to software based on
+    image recognition and object detection. Since it is the main
+    objective of the project, choosing python was a given.Python has an upper hand when it comes to software based on
+    image recognition and object detection. Since it is the main
+    objective of the project, choosing python was a given.
+    \item Python is unbeaten when it comes to Machine Learning. Python has
+    support for myriad machine learning libraries, such as OpenCV, the
+    one being used here.
+    \item Python is comparatively easier to understand and learn. The syntax
+    is clear and simple to read and write.
+    \item And just our overall experience of using python for years.
+\end{enumerate}
 
 \end{document}
