@@ -20,6 +20,47 @@
 
 \usepackage{enumitem}
 
+\usepackage{caption}
+\usepackage{subcaption}
+
+\usepackage{listings}
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+\lstset{
+    backgroundcolor=\color{white},      % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}; should come as last argument
+    language=Python,                    % the language of the code
+    basicstyle=\footnotesize\ttfamily,  % the size of the fonts that are used for the code
+    breakatwhitespace=false,            % sets if automatic breaks should only happen at whitespace
+    breaklines=true,                    % sets automatic line breaking
+    captionpos=b,                       % sets the caption-position to bottom
+    commentstyle=\color{mygreen},       % comment style
+    deletekeywords={...},               % if you want to delete keywords from the given language
+    escapeinside={\%*}{*)},             % if you want to add LaTeX within your code
+    extendedchars=true,                 % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+    firstnumber=1,                      % start line enumeration with line 1
+    numbers=left,                       % where to put the line-numbers; possible values are (none, left, right)
+    numberstyle=\tiny\color{mygray},    % the style that is used for the line-numbers
+    numbersep=7pt,                      % how far the line-numbers are from the code
+	frame=single,                       % code snippet frame, t-> top, b->bottom, l->left, r->right, single-> all around
+	tabsize=4,                          % tab = (tabsize) * space
+    columns=flexible,                   % two options, fixed or flexible
+    keepspaces=true,                    % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+    morekeywords={*,...},               % if you want to add more keywords to the set
+    rulecolor=\color{black},            % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+	showspaces=false,                   % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+    showstringspaces=false,             % underline spaces within strings only
+    showtabs=false,                     % show tabs within strings adding particular underscores
+    stepnumber=1,                       % the step between two line-numbers. If it's 1, each line will be numbered
+    stringstyle=\color{mymauve},        % string literal style
+    title=\small\lstname,                     % show the filename of files included with \lstinputlisting; also try caption instead of title
+	% keepspaces,
+	keywordstyle=\color{blue}           % keyword style    
+}
+
+\usepackage{hyperref}
+
 \begin{document}
 \begin{titlepage}
     \begin{tikzpicture}[overlay,remember picture]
@@ -253,6 +294,10 @@ development. An IDE normally consists of at least a source code editor, build
 automation tools and a debugger. Some IDEs contain the necessary compiler,
 interpreter, or both; others, do not.
 
+We used PyCharm as our IDE, as it was easy to set up and code
+
+\textcolor{green}{wikipedia reference}PyCharm is an integrated development environment (IDE) used in computer programming, specifically for the Python language. It is developed by the Czech company JetBrains. It provides code analysis, a graphical debugger, an integrated unit tester, integration with version control systems (VCSes), and supports web development with Django as well as data science with Anaconda.
+
 \subsubsection{Python}
 Python is an interpreted, high-level and general-purpose programming language.
 Python's design philosophy emphasizes code readability with its notable use of
@@ -262,16 +307,124 @@ to help programmers write clear, logical code for small and large-scale projects
 \paragraph{Why did we choose Python?}
 \begin{enumerate}
     \item Python has an upper hand when it comes to software based on
-    image recognition and object detection. Since it is the main
-    objective of the project, choosing python was a given.Python has an upper hand when it comes to software based on
-    image recognition and object detection. Since it is the main
-    objective of the project, choosing python was a given.
+          image recognition and object detection. Since it is the main
+          objective of the project, choosing python was a given.Python has an upper hand when it comes to software based on
+          image recognition and object detection. Since it is the main
+          objective of the project, choosing python was a given.
     \item Python is unbeaten when it comes to Machine Learning. Python has
-    support for myriad machine learning libraries, such as OpenCV, the
-    one being used here.
+          support for myriad machine learning libraries, such as OpenCV, the
+          one being used here.
     \item Python is comparatively easier to understand and learn. The syntax
-    is clear and simple to read and write.
+          is clear and simple to read and write.
     \item And just our overall experience of using python for years.
 \end{enumerate}
+
+\subsubsection{Google Colab}
+After working on the project for quite some time, we realized that we did
+not have enough hardware resources at out disposal to actually make the
+\textit{checker} work smoothly. So we decided on shifting to Google Colab.
+Google colab is an online iPython development environment similar to
+Jupyter Notebook. It uses CUDA acceleration to speed up processes, so we
+switched to it rather than continuing development
+
+\subsubsection{LaTeX}
+LaTeX was used to write this report. LaTeX is a software system for document
+preparation. When writing, the writer uses plain text as opposed to the formatted
+text found in "What You See Is What You Get" word processors like Microsoft Word
+or LibreOffice Writer.
+
+\subsection{The Program}
+
+\subsubsection{Outline}
+The blueprint of this \textit{checker} that we thought of initially:
+
+\begin{enumerate}
+    \item Video Input
+          \begin{itemize}[label={}]
+              \item Need some way to handle video input coming through the camera feed
+          \end{itemize}
+
+    \item Processing
+          \begin{itemize}[label={}]
+              \item The input needs to be processed somehow
+          \end{itemize}
+
+    \item Detecting people
+          \begin{itemize}[label={}]
+              \item Need to identify people in the video feed
+          \end{itemize}
+
+    \item Measuring distance between each couple
+          \begin{itemize}[label={}]
+              \item Need to calculate the distance between every two persons
+          \end{itemize}
+
+    \item Mark the violations
+          \begin{itemize}[label={}]
+              \item Need to mark the ones that violate social distancing norms
+          \end{itemize}
+\end{enumerate}
+
+\subsubsection{Proceedings}
+
+How we proceeded with the outlines of the blueprint:
+
+\begin{enumerate}
+    \item Video Input
+          \begin{itemize}[label={}]
+              \item This was easier than we expected it to be. We just had to get our hands
+                    on some recorded footage of somewhat populated areas. We refrained from using live
+                    footage because:
+                    \begin{itemize}
+                        \item It is tough to get our hands on the light footage of a security camera or the equivalent.
+                        \item If the checker worked on recorded footage, it would work on live footage as well.
+                    \end{itemize}
+                    \pagebreak
+              \item The videos we ended up choosing:
+                    \begin{figure}[h!]
+                        \centering
+                        \begin{subfigure}[b]{0.4\linewidth}
+                            \includegraphics[width=\linewidth]{Pictures/pedestrian.jpg}
+                            \caption{Pedestrian Video}
+                        \end{subfigure}
+                        \begin{subfigure}[b]{0.4\linewidth}
+                            \includegraphics[width=\linewidth]{Pictures/shibuya.png}
+                            \caption{Shibuya Video}
+                        \end{subfigure}
+                        \caption{Still Pictures from Sample Videos}
+                        \label{fig1:stills}
+                    \end{figure}
+          \end{itemize}
+
+    \item Processing
+    \begin{itemize}[label={}]
+        \item We used the OpenCV library for our video/image processing. It is a really handy library that can be used for image processing, object detection and many other purposes.
+        \lstinputlisting[caption=A Sample Code To Count No. Of Frames in a Video, label=lst1:VideoFrames]{python scripts/total_frames.py}
+    \end{itemize}
+    
+    \item Detecting People
+          \begin{itemize}
+              \item For this we decided to go with the You Only Look Once (YOLO) algorithm for object detection. The algorithm itself is discussed a bit later in the report.
+              \item We did not train the object detection neural network model ourselves. We used the prebuilt model, trained by the Darknet team \textcolor{green}{https://pjreddie.com/darknet/yolo/} because of time constraints.
+          \end{itemize}
+
+    \item Measuring distance between each couple
+          \begin{itemize}
+              \item This was undeniably the toughest part of the project and took the longest time. First we decided to go with measuring the distance between the centroids of every two detections. But that may not work in every condition since it depends on the placement of camera and the view angle from the ground and perpendicular to the ground.
+              \item A conversion of the 3-dimensional footage being fed to the algorithm to 2-dimensions was more than necessary to get the top view of every frame to avoid the \textit{viewing angle problem}.
+              \item Enter \textbf{Bird's Eye View (BEV)}. This is what we called the top view of every frame. This was made possible by OpenCV's \textcolor{brown}{getPerspectiveTransform()} and \textcolor{brown}{warpPerspective()} functions.
+                    \lstinputlisting[caption=Function Bird's Eye Perspective Transformation Matrix, label=lst2:BirdsEyePerspective]{python scripts/birds_eye_perspective.py}
+              \item \textcolor{green}{\href{https://cseweb.ucsd.edu/classes/wi07/cse252a/homography_estimation/homography_estimation.pdf}{homography estimation pdf}} This piece of code essentially calculates what is called a \textit{transformation matrix}  for the supplied image (frame) which can then be used to get the centroids of the points as seen from a vertical position directly above the center of the rectangle passed to the function.
+                    \lstinputlisting[caption=Function which convert co-ordinates to it's bird's view co-ordinate, label=lst3:birdsEyeAllign]{python scripts/birds_eye_allignment.py}
+              \item We used these functions to get a two dimensional view of every frame and calculate distance between every pair of detections (people).
+          \end{itemize}
+
+    \item Mark the violations
+          \begin{itemize}[label={}]
+              \item This was again a fairly easy step. We just needed the coordinates of the people in the \textit{violation zone} and make their detection rectangle red as opposed to green.
+          \end{itemize}
+\end{enumerate}
+
+\subsection{The YOLO Algorithm}
 
 \end{document}

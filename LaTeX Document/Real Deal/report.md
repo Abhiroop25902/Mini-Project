@@ -160,7 +160,7 @@ working. These are:
     * OpenCV - version 2 or above
     * numPy
 
-* Hardware acceleration
+* Hardware accelartion
     * A GPU is optional yet recommended to get the best performance
     * If a GPU is not being used, the CPU need to be good enough
 
@@ -174,7 +174,7 @@ The softwares used to build this *checker* are:
 
 1. An Integrated Development Environment (IDE)
 
-An integrated development environment (IDE) is a software application that 
+    An integrated development environment (IDE) is a software application that 
 provides comprehensive facilities to computer programmers for software 
 development. An IDE normally consists of at least a source code editor, build 
 automation tools and a debugger. Some IDEs contain the necessary compiler, 
@@ -182,12 +182,12 @@ interpreter, or both; others, do not.
 
 1. Python
 
-Python is an interpreted, high-level and general-purpose programming language. 
+    Python is an interpreted, high-level and general-purpose programming language. 
 Python's design philosophy emphasizes code readability with its notable use of 
 significant whitespace. Its language constructs and object-oriented approach aim 
 to help programmers write clear, logical code for small and large-scale projects.
 
-**Why did we choose Python?:**
+    **Why did we choose Python?:**
     * Python has an upper hand when it comes to software based on
     image recognition and object detection. Since it is the main
     objective of the project, choosing python was a given.
@@ -203,7 +203,7 @@ to help programmers write clear, logical code for small and large-scale projects
 
 1. Google Colab
 
-After working on the project for quite some time, we realised that we did
+    After working on the project for quite some time, we realised that we did
 not have enough hardware resources at out disposal to actually make the
 *checker* work smoothly. So we decided on shifting to Google Colab.
 Google colab is an online iPython development environment similar to 
@@ -212,7 +212,7 @@ switched to it rather than continuing development locally.
 
 1. LaTeX
 
-LaTeX was used to write this report. LaTeX is a software system for document 
+    LaTeX was used to write this report. LaTeX is a software system for document 
 preparation. When writing, the writer uses plain text as opposed to the formatted 
 text found in "What You See Is What You Get" word processors like Microsoft Word 
 or LibreOffice Writer.
@@ -221,4 +221,76 @@ or LibreOffice Writer.
 
 ## The Program
 
-// will see this later
+### Outline 
+
+The blueprint of this *checker* that we thought of initially:
+
+1. Video Input
+    * Need some way to handle video input coming through the camera feed
+
+1. Processing
+    * The input needs to be processed somehow
+
+1. Detecting people
+    * Need to identify people in the video feed
+
+1. Measuring distance between each couple
+    * Need to calculate the distance between every two persons
+
+1. Mark the violations
+    * Need to mark the ones that violate social distacing norms
+
+### Proceedings
+
+How we proceeded with the outlines of the blueprint:
+
+1. Video Input
+    * This was easier than we expected it to be. We just had to get our hands
+    on some recorded footage of somewhat populated areas. We refrained from using live
+    footage because:
+        * It is tough to get our hands on the light footage of a security camera or the equivalent.
+        * If the checker worked on recorded footage, it would work on live footage as well.
+    * The videos we ended up choosing:
+    // insert a frame from the videos here
+
+1. Processing
+    * We used the OpenCV library for our video/image processing. It is a really handy library that can be used for image processing, object detection and many other purposes. 
+    // insert some of the opencv code here 
+
+1. Detecting people
+    * For this we decided to go with the You Only Look Once (YOLO) algorithm for object detection. The algorithm itself is discussed a bit later in the report. 
+    * We did not train the object detection neural network model ourselves. We used the *insert model name* model because of time constraints.
+    // insert some yolo code here lul
+
+1. Mesuring distance between each couple
+    * This was undeniably the toughest part of the project and took the longest time. First we decided to go with measuring the distance between the centroids of every two detections. But that may not work in every condition since it depends on the placement of camera and the view angle from the ground and perpendicular to the ground.
+    * A conversion of the 3-dimensional footage being fed to the algorithm to 2-dimensions was more than necessary to get the top view of every frame to avoid the *viewing angle problem*.
+    * Enter **Bird's Eye View (BEV)**. This is what we called the top view of every frame. This was made possible by OpenCV's ``getPerspectiveTransform()`` and ``warpPerspective()`` functions.
+
+    // insert the bird's eye view function here
+    * This piece of code essentially calculates what is called a *transformation matrix* for the supplied image (frame) which can then be used to get the centroids of the points as seen from a vertical position directly above the center of the rectangle passed to the function.
+    * We used this to get a two dimensional view of every frame and calculate distance between every pair of detections (people).
+
+1. Mark the violations
+    * This was again a fairly easy step. We just needed the coordinates of the people in the *violation zone* and make their detection rectangle red as opposed to green.
+
+## The YOLO Algorithm
+
+* **What is the YOLO algorithm?**
+
+    * **YOLO (“You Only Look Once”)** is an effective real-time **object recognition** algorithm, first described in the seminal 2015 paper by Joseph Redmon et al.
+    * **Image classification** done by YOLO algorithm aims at assigning an image to one of a number of different categories (e.g. car, dog, cat, human, etc.), essentially answering the question “What is in this picture?”. One image has only one category assigned to it. 
+    * **Object localization** then allows us to locate our object in the image, so our question changes to “Where is it?”. 
+    * **Object detection** provides the tools for doing just that –  finding all the objects in an image and drawing the so-called bounding boxes around them.
+
+    // insert a picture of YOLO working here
+
+* **Where does YOLO stand in the *object detection algorithms* chart?**
+
+    There are a few different algorithms for object detection and they can be split into two groups:
+
+    1. **Algorithms based on classification**: They are implemented in two stages. First, they select regions of interest in an image. Second, they classify these regions using convolutional neural networks. This solution can be slow because we have to run predictions for every selected region. A widely known example of this type of algorithm is the Region-based convolutional neural network (RCNN) and its cousins Fast-RCNN, Faster-RCNN and the latest addition to the family: Mask-RCNN. Another example is RetinaNet.
+
+    1. **Algorithms based on regression**: Instead of selecting interesting parts of an image, these predict classes and bounding boxes for the whole image in one run of the algorithm. The two best known examples from this group are the **YOLO *(it stands here)*** family algorithms and SSD (Single Shot Multibox Detector). They are commonly used for real-time object detection as, in general, they trade a bit of accuracy for large improvements in speed. 
+
+* **How does YOLO work?**
